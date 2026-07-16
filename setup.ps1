@@ -1,157 +1,151 @@
-# Meeting AI - Установщик
+# Meeting AI - Installer
 Write-Host "============================================" -ForegroundColor Cyan
-Write-Host "  Meeting AI - Установка" -ForegroundColor Cyan
+Write-Host "  Meeting AI - Installation" -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Проверка админских прав
+# Admin check
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
-    Write-Host "[ERROR] Запустите от имени администратора!" -ForegroundColor Red
-    Write-Host "Правой кнопкой на setup.bat -> Запуск от имени администратора" -ForegroundColor Yellow
+    Write-Host "[ERROR] Please run as Administrator!" -ForegroundColor Red
+    Write-Host "Right-click on setup.bat -> Run as administrator" -ForegroundColor Yellow
     pause
     exit 1
 }
 
-# Python
-Write-Host "[1/4] Проверка Python..." -ForegroundColor Green
+# 1. Python
+Write-Host "[1/4] Checking Python..." -ForegroundColor Green
 try {
     $pythonVer = python --version 2>&1
-    Write-Host "[OK] Python найден: $pythonVer" -ForegroundColor Green
+    Write-Host "[OK] Python found: $pythonVer" -ForegroundColor Green
 } catch {
-    Write-Host "[ERROR] Python не установлен!" -ForegroundColor Red
-    Write-Host "Скачайте с https://www.python.org/downloads/" -ForegroundColor Yellow
-    Write-Host "При установке отметьте 'Add Python to PATH'" -ForegroundColor Yellow
+    Write-Host "[ERROR] Python is not installed!" -ForegroundColor Red
+    Write-Host "Download from https://www.python.org/downloads/" -ForegroundColor Yellow
+    Write-Host "IMPORTANT: Check 'Add Python to PATH' during installation" -ForegroundColor Yellow
     pause
     exit 1
 }
 
-# Ollama
+# 2. Ollama
 Write-Host ""
-Write-Host "[2/4] Проверка Ollama..." -ForegroundColor Green
+Write-Host "[2/4] Checking Ollama..." -ForegroundColor Green
 $ollamaInstalled = $false
 try {
     $ollamaVer = ollama --version 2>&1
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "[OK] Ollama установлена: $ollamaVer" -ForegroundColor Green
+        Write-Host "[OK] Ollama found: $ollamaVer" -ForegroundColor Green
         $ollamaInstalled = $true
     }
 } catch {}
 
 if (-not $ollamaInstalled) {
-    Write-Host "[INSTALL] Установка Ollama..." -ForegroundColor Yellow
-    Write-Host "Скачиваю установщик..." -ForegroundColor Yellow
+    Write-Host "[INSTALL] Installing Ollama..." -ForegroundColor Yellow
     Invoke-WebRequest "https://ollama.com/download/OllamaSetup.exe" -OutFile "$env:TEMP\ollama.exe" -UseBasicParsing
-    Write-Host "Запускаю установщик Ollama..." -ForegroundColor Yellow
     Start-Process "$env:TEMP\ollama.exe" -ArgumentList "/S" -Wait
-    Write-Host "[OK] Ollama установлена" -ForegroundColor Green
+    Write-Host "[OK] Ollama installed" -ForegroundColor Green
 }
 
-# Запуск Ollama сервера (ВАЖНО!)
+# Start Ollama server
 Write-Host ""
-Write-Host "[2.5] Запуск Ollama сервера..." -ForegroundColor Green
+Write-Host "[2.5] Starting Ollama server..." -ForegroundColor Green
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
-# Проверяем, запущена ли Ollama
 $ollamaRunning = $false
 try {
     ollama list 2>&1 | Out-Null
     if ($LASTEXITCODE -eq 0) {
         $ollamaRunning = $true
-        Write-Host "[OK] Ollama сервер уже запущен" -ForegroundColor Green
+        Write-Host "[OK] Ollama server is already running" -ForegroundColor Green
     }
 } catch {}
 
 if (-not $ollamaRunning) {
-    Write-Host "Запускаю Ollama сервер..." -ForegroundColor Yellow
+    Write-Host "Starting Ollama server in background..." -ForegroundColor Yellow
     Start-Process "ollama" -ArgumentList "serve" -WindowStyle Hidden
-    Start-Sleep -Seconds 5  # Ждём запуска
+    Start-Sleep -Seconds 5
     
-    # Проверяем снова
     try {
         ollama list 2>&1 | Out-Null
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "[OK] Ollama сервер запущен" -ForegroundColor Green
+            Write-Host "[OK] Ollama server started successfully" -ForegroundColor Green
         } else {
-            Write-Host "[WARNING] Ollama не отвечает. Попробуйте перезапустить компьютер." -ForegroundColor Yellow
+            Write-Host "[WARNING] Ollama is not responding. You may need to restart your PC." -ForegroundColor Yellow
         }
     } catch {
-        Write-Host "[WARNING] Ollama не отвечает. Попробуйте перезапустить компьютер." -ForegroundColor Yellow
+        Write-Host "[WARNING] Ollama is not responding. You may need to restart your PC." -ForegroundColor Yellow
     }
 }
 
-# Модель
+# 3. Model
 Write-Host ""
-Write-Host "[3/4] Установка модели (4.7 ГБ)..." -ForegroundColor Green
-Write-Host "Это займёт 5-15 минут. Не закрывайте окно!" -ForegroundColor Yellow
-Write-Host ""
+Write-Host "[3/4] Installing model (4.7 GB)..." -ForegroundColor Green
+Write-Host "This may take 5-15 minutes. Please wait..." -ForegroundColor Yellow
 
-# Проверяем, есть ли уже модель
 $modelExists = $false
 try {
     $models = ollama list 2>&1
     if ($models -like "*qwen2.5*") {
         $modelExists = $true
-        Write-Host "[OK] Модель qwen2.5:7b уже установлена" -ForegroundColor Green
+        Write-Host "[OK] Model qwen2.5:7b is already installed" -ForegroundColor Green
     }
 } catch {}
 
 if (-not $modelExists) {
-    Write-Host "Скачиваю модель..." -ForegroundColor Yellow
+    Write-Host "Downloading model..." -ForegroundColor Yellow
     ollama pull qwen2.5:7b
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "[OK] Модель установлена" -ForegroundColor Green
+        Write-Host "[OK] Model installed successfully" -ForegroundColor Green
     } else {
-        Write-Host "[ERROR] Ошибка установки модели" -ForegroundColor Red
-        Write-Host "Попробуйте запустить setup.bat ещё раз" -ForegroundColor Yellow
+        Write-Host "[ERROR] Failed to install model" -ForegroundColor Red
+        Write-Host "Try running setup.bat again" -ForegroundColor Yellow
         pause
         exit 1
     }
 }
 
-# venv
+# 4. Virtual Environment
 Write-Host ""
-Write-Host "[4/4] Установка библиотек..." -ForegroundColor Green
+Write-Host "[4/4] Setting up Python environment..." -ForegroundColor Green
 if (Test-Path "venv") {
-    Write-Host "[OK] Virtual environment существует" -ForegroundColor Green
+    Write-Host "[OK] Virtual environment exists" -ForegroundColor Green
 } else {
-    Write-Host "Создаю virtual environment..." -ForegroundColor Yellow
+    Write-Host "Creating virtual environment..." -ForegroundColor Yellow
     python -m venv venv
 }
 
-Write-Host "Устанавливаю библиотеки..." -ForegroundColor Yellow
+Write-Host "Installing libraries..." -ForegroundColor Yellow
 & "venv\Scripts\pip.exe" install --upgrade pip | Out-Null
 & "venv\Scripts\pip.exe" install -r requirements.txt
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "[OK] Библиотеки установлены" -ForegroundColor Green
+    Write-Host "[OK] Libraries installed" -ForegroundColor Green
 } else {
-    Write-Host "[ERROR] Ошибка установки библиотек" -ForegroundColor Red
+    Write-Host "[ERROR] Failed to install libraries" -ForegroundColor Red
     pause
     exit 1
 }
 
-# Создание ярлыка
+# Create Shortcut
 Write-Host ""
-Write-Host "[FINAL] Создание ярлыка..." -ForegroundColor Green
+Write-Host "[FINAL] Creating desktop shortcut..." -ForegroundColor Green
 $WshShell = New-Object -ComObject WScript.Shell
 $Shortcut = $WshShell.CreateShortcut("$PSScriptRoot\Meeting AI.lnk")
 $Shortcut.TargetPath = "cmd.exe"
 $Shortcut.Arguments = "/c `"$PSScriptRoot\Запустить.bat`""
 $Shortcut.WorkingDirectory = $PSScriptRoot
 $Shortcut.IconLocation = "shell32.dll,13"
-$Shortcut.Description = "Meeting AI - Анализ совещаний"
+$Shortcut.Description = "Meeting AI"
 $Shortcut.Save()
-Write-Host "[OK] Ярлык создан" -ForegroundColor Green
+Write-Host "[OK] Shortcut created" -ForegroundColor Green
 
-# Итог
+# Done
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Cyan
-Write-Host "  УСТАНОВКА ЗАВЕРШЕНА!" -ForegroundColor Green
+Write-Host "  INSTALLATION COMPLETE!" -ForegroundColor Green
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Теперь запустите:" -ForegroundColor Yellow
-Write-Host "  - Meeting AI.lnk (ярлык)" -ForegroundColor White
-Write-Host "  - или Запустить.bat" -ForegroundColor White
+Write-Host "You can now run the application:" -ForegroundColor Yellow
+Write-Host "  - Double-click 'Meeting AI.lnk'" -ForegroundColor White
+Write-Host "  - Or double-click 'Запустить.bat'" -ForegroundColor White
 Write-Host ""
 pause
