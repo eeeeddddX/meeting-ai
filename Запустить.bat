@@ -1,32 +1,28 @@
 @echo off
-chcp 65001 >nul
-title Meeting AI - Запуск
+title Meeting AI - Launcher
 color 0A
 
 echo ===================================================
-echo   Запуск Meeting AI...
+echo   Starting Meeting AI...
 echo ===================================================
 echo.
 
-:: Проверяем, существует ли виртуальное окружение
 if exist "venv\Scripts\python.exe" (
-    echo [OK] Виртуальное окружение найдено.
-    echo [OK] Запускаю приложение...
+    echo [OK] Virtual environment found.
+    echo [OK] Launching application...
     echo.
     
-    :: Запускаем основной скрипт через Python из venv
     venv\Scripts\python.exe main.py
     
-    :: Если приложение закрылось, показываем сообщение
     echo.
-    echo Приложение закрыто. Нажмите любую клавишу для выхода...
+    echo Application closed. Press any key to exit...
     pause >nul
 ) else (
     color 0C
-    echo [ОШИБКА] Виртуальное окружение не найдено!
+    echo [ERROR] Virtual environment not found!
     echo.
-    echo Пожалуйста, сначала запустите файл "setup.ps1"
-    echo ПРАВОЙ кнопкой мыши -^> "Запуск от имени администратора".
+    echo Please run "setup.ps1" as Administrator first:
+    echo Right-click on setup.ps1 -^> "Run with PowerShell"
     echo.
     pause
 )
