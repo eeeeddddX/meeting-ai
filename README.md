@@ -1,52 +1,62 @@
-# Meeting AI
+# 🎙️ Meeting AI
 
-Automatic task extraction from meeting recordings using local AI.
+Автоматическое извлечение задач из записей совещаний с помощью локального искусственного интеллекта.
 
-## Quick Start
+## 🚀 Быстрый старт
 
-### 1. Install (one time)
+### 1. Установка (делается один раз)
 
-1. Right-click `install.bat` → **Run as administrator**
-2. Press any key when prompted
-3. Wait 5-15 minutes (downloads 4.7 GB AI model)
-4. When you see `INSTALLATION COMPLETE!`, close the window
+1. Нажмите правой кнопкой мыши на файл `install.bat` → **Запуск от имени администратора**.
+2. Нажмите любую клавишу, когда программа попросит.
+3. Подождите 5–15 минут (будет скачана нейросеть весом ~4.7 ГБ).
+4. Когда увидите зеленую надпись `INSTALLATION COMPLETE!`, закройте окно.
 
-### 2. Run
+### 2. Запуск
 
-Double-click `run.bat`
+Просто дважды кликните на файл `run.bat`.
 
-## Requirements
+---
 
-- Windows 10/11
-- 8 GB RAM minimum
-- 15 GB free disk space
-- Internet (first time only)
+## 📋 Системные требования
 
-## How it works
+- **Операционная система:** Windows 10/11
+- **Оперативная память:** минимум 8 ГБ
+- **Место на диске:** 15 ГБ свободного места
+- **Интернет:** требуется только для первой установки
 
-1. Select an audio file (mp3, wav, m4a, etc.) or paste meeting transcript
-2. Click "Start Processing"
-3. Get tasks with assignees, deadlines and priorities
-4. Export to CSV (Excel), JSON, or Markdown (Notion)
+---
 
-## Privacy
+## ⚙️ Как это работает
 
-All processing happens locally on your computer. Nothing is sent to the internet after installation.
+1. Выберите аудиофайл с записью совещания (mp3, wav, m4a и др.) или вставьте готовый текст расшифровки.
+2. Нажмите кнопку **"Начать обработку"**.
+3. Получите структурированный список задач с ответственными, сроками и приоритетами.
+4. Экспортируйте результат в удобном формате: CSV (для Excel), JSON или Markdown (для Notion/Confluence).
 
-## Troubleshooting
+---
 
-**"Python not found"**
-- Install Python from python.org
-- Check "Add Python to PATH" during installation
-- Restart and run install.bat again
+## 🔒 Приватность
 
-**"Not installed" when running run.bat**
-- Run install.bat as Administrator first
+Вся обработка происходит **локально на вашем компьютере**. После первоначальной установки ваши данные и записи никуда не отправляются и не передаются в интернет.
 
-**Slow performance**
-- Close other applications during processing
-- For weak PCs: edit install.bat, change `qwen2.5:7b` to `qwen2.5:3b`
+---
 
-## License
+## 🔧 Решение проблем
 
-MIT
+**"Python not found" (Python не найден)**
+- Скачайте и установите Python с [python.org](https://www.python.org/downloads/).
+- При установке *обязательно* поставьте галочку **"Add Python to PATH"**.
+- Перезагрузите компьютер и снова запустите `install.bat`.
+
+**"Not installed" при запуске run.bat**
+- Вы пропустили первый шаг. Сначала запустите `install.bat` от имени администратора и дождитесь полного завершения установки.
+
+**Медленная работа приложения**
+- Закройте другие тяжелые программы (браузер с множеством вкладок, игры) во время обработки аудио.
+- Для слабых компьютеров: откройте файл `install.bat` в Блокноте и замените `qwen2.5:7b` на `qwen2.5:3b` (это более легкая и быстрая модель).
+
+---
+
+## 📄 Лицензия
+
+MIT License. Используйте свободно.
