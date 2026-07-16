@@ -1,31 +1,24 @@
 @echo off
+chcp 65001 >nul
 title Meeting AI
 color 0A
 
-echo ====================================================
-echo   Starting Meeting AI
-echo ====================================================
-echo.
-
 if not exist "venv\Scripts\python.exe" (
     color 0C
-    echo [ERROR] Application not installed!
-    echo.
-    echo First run "install.bat" as Administrator.
-    echo.
+    echo [ERROR] Not installed!
+    echo Please run "install.bat" as Administrator first.
     pause
-    exit /b 1
+    exit /b
 )
 
-echo [OK] Starting application...
+echo [OK] Starting Meeting AI...
 echo.
 call venv\Scripts\activate
 python main.py
 
-if errorlevel 1 (
+if %errorlevel% neq 0 (
     color 0C
     echo.
-    echo [ERROR] Application crashed!
-    echo.
+    echo [ERROR] Application crashed. Check logs above.
     pause
 )
