@@ -1,28 +1,29 @@
 @echo off
-title Meeting AI - Launcher
+title Meeting AI
 color 0A
 
-echo ===================================================
-echo   Starting Meeting AI...
-echo ===================================================
+echo ============================================
+echo    Meeting AI - Запуск
+echo ============================================
 echo.
 
-if exist "venv\Scripts\python.exe" (
-    echo [OK] Virtual environment found.
-    echo [OK] Launching application...
-    echo.
-    
-    venv\Scripts\python.exe main.py
-    
-    echo.
-    echo Application closed. Press any key to exit...
-    pause >nul
-) else (
+:: Проверяем venv
+if not exist "venv\Scripts\python.exe" (
     color 0C
-    echo [ERROR] Virtual environment not found!
+    echo [ОШИБКА] Приложение не установлено!
     echo.
-    echo Please run "setup.ps1" as Administrator first:
-    echo Right-click on setup.ps1 -^> "Run with PowerShell"
+    echo Запустите файл setup.ps1:
+    echo 1. Правой кнопкой на setup.ps1
+    echo 2. "Выполнить с помощью PowerShell"
+    echo 3. Дождитесь окончания установки
     echo.
     pause
+    exit /b 1
 )
+
+:: Запускаем
+echo [OK] Запуск...
+echo.
+venv\Scripts\python.exe main.py
+
+pause >nul

@@ -1,90 +1,99 @@
-# Meeting AI - Автоматический установщик
-# Запускать от имени администратора!
-
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  Meeting AI - Установщик" -ForegroundColor Cyan
-Write-Host "========================================" -ForegroundColor Cyan
+# Meeting AI - Установщик
+Write-Host "============================================" -ForegroundColor Cyan
+Write-Host "  Meeting AI - Установка" -ForegroundColor Cyan
+Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Проверка прав администратора
+# Проверка админских прав
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
-    Write-Host "⚠️  Запустите этот скрипт от имени администратора!" -ForegroundColor Red
-    Write-Host "Правой кнопкой на PowerShell -> Запуск от имени администратора" -ForegroundColor Yellow
+    Write-Host "[ERROR] Запустите от имени администратора!" -ForegroundColor Red
+    Write-Host "Правой кнопкой на setup.ps1 -> Запуск от имени администратора" -ForegroundColor Yellow
     pause
-    exit
+    exit 1
 }
 
-# Шаг 1: Проверка и установка Python
-Write-Host "📦 Шаг 1/4: Проверка Python..." -ForegroundColor Green
-$pythonVersion = python --version 2>&1
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Python не найден. Скачиваю..." -ForegroundColor Yellow
-    Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.12.9/python-3.12.9-amd64.exe" -OutFile "$env:TEMP\python-installer.exe"
-    Start-Process -FilePath "$env:TEMP\python-installer.exe" -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1 Include_pip=1" -Wait
-    Write-Host "✅ Python установлен" -ForegroundColor Green
-} else {
-    Write-Host "✅ Python найден: $pythonVersion" -ForegroundColor Green
+# Python
+Write-Host "[1/4] Проверка Python..." -ForegroundColor Green
+try {
+    $pythonVer = python --version 2>&1
+    Write-Host "[OK] Python найден: $pythonVer" -ForegroundColor Green
+} catch {
+    Write-Host "[INSTALL] Установка Python..." -ForegroundColor Yellow
+    Start-Process "https://www.python.org/downloads/" 
+    Write-Host "Установите Python и отметьте 'Add Python to PATH'" -ForegroundColor Yellow
+    Write-Host "После установки запустите setup.ps1 снова" -ForegroundColor Yellow
+    pause
+    exit 0
 }
 
-# Шаг 2: Проверка и установка Ollama
+# Ollama
 Write-Host ""
-Write-Host " Шаг 2/4: Проверка Ollama..." -ForegroundColor Green
-$ollamaVersion = ollama --version 2>&1
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Ollama не найден. Скачиваю..." -ForegroundColor Yellow
-    Invoke-WebRequest -Uri "https://ollama.com/download/OllamaSetup.exe" -OutFile "$env:TEMP\ollama-installer.exe"
-    Start-Process -FilePath "$env:TEMP\ollama-installer.exe" -ArgumentList "/S" -Wait
-    Write-Host "✅ Ollama установлен" -ForegroundColor Green
-} else {
-    Write-Host "✅ Ollama найден: $ollamaVersion" -ForegroundColor Green
+Write-Host "[2/4] Проверка Ollama..." -ForegroundColor Green
+try {
+    ollama --version | Out-Null
+    Write-Host "[OK] Ollama установлена" -ForegroundColor Green
+} catch {
+    Write-Host "[INSTALL] Установка Ollama..." -ForegroundColor Yellow
+    Invoke-WebRequest "https://ollama.com/download/OllamaSetup.exe" -OutFile "$env:TEMP\ollama.exe"
+    Start-Process "$env:TEMP\ollama.exe" -ArgumentList "/S" -Wait
+    Write-Host "[OK] Ollama установлена" -ForegroundColor Green
 }
 
-# Шаг 3: Установка модели Qwen2.5
+# Модель
 Write-Host ""
-Write-Host "📦 Шаг 3/4: Установка модели Qwen2.5:7b (4.7 ГБ)..." -ForegroundColor Green
-Write-Host "Это займёт 5-15 минут в зависимости от скорости интернета..." -ForegroundColor Yellow
+Write-Host "[3/4] Установка модели (4.7 ГБ)..." -ForegroundColor Green
+Write-Host "Это займёт 5-15 минут..." -ForegroundColor Yellow
 ollama pull qwen2.5:7b
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "✅ Модель установлена" -ForegroundColor Green
+    Write-Host "[OK] Модель установлена" -ForegroundColor Green
 } else {
-    Write-Host "❌ Ошибка установки модели" -ForegroundColor Red
+    Write-Host "[ERROR] Ошибка установки модели" -ForegroundColor Red
+    pause
+    exit 1
 }
 
-# Шаг 4: Создание виртуального окружения и установка зависимостей
+# venv
 Write-Host ""
-Write-Host " Шаг 4/4: Установка Python-библиотек..." -ForegroundColor Green
-$venvPath = Join-Path $PSScriptRoot "venv"
-if (-not (Test-Path $venvPath)) {
-    python -m venv $venvPath
+Write-Host "[4/4] Установка библиотек..." -ForegroundColor Green
+if (Test-Path "venv") {
+    Write-Host "[OK] Virtual environment существует" -ForegroundColor Green
+} else {
+    python -m venv venv
 }
-& "$venvPath\Scripts\pip.exe" install --upgrade pip
-& "$venvPath\Scripts\pip.exe" install -r (Join-Path $PSScriptRoot "requirements.txt")
+& "venv\Scripts\pip.exe" install --upgrade pip | Out-Null
+& "venv\Scripts\pip.exe" install -r requirements.txt
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "✅ Библиотеки установлены" -ForegroundColor Green
+    Write-Host "[OK] Библиотеки установлены" -ForegroundColor Green
 } else {
-    Write-Host "❌ Ошибка установки библиотек" -ForegroundColor Red
+    Write-Host "[ERROR] Ошибка установки библиотек" -ForegroundColor Red
+    pause
+    exit 1
 }
 
-# Создание ярлыка для запуска
+# Создание ярлыка
 Write-Host ""
-Write-Host "🎉 Создание ярлыка..." -ForegroundColor Green
-$shortcutPath = [System.IO.Path]::Combine($PSScriptRoot, "Meeting AI.lnk")
+Write-Host "[FINAL] Создание ярлыка..." -ForegroundColor Green
 $WshShell = New-Object -ComObject WScript.Shell
-$Shortcut = $WshShell.CreateShortcut($shortcutPath)
-$Shortcut.TargetPath = "powershell.exe"
-$Shortcut.Arguments = "-ExecutionPolicy Bypass -File `"$PSScriptRoot\run.ps1`""
+$Shortcut = $WshShell.CreateShortcut("$PSScriptRoot\Meeting AI.lnk")
+$Shortcut.TargetPath = "cmd.exe"
+$Shortcut.Arguments = "/c `"$PSScriptRoot\Запустить.bat`""
 $Shortcut.WorkingDirectory = $PSScriptRoot
-$Shortcut.IconLocation = "powershell.exe,0"
+$Shortcut.IconLocation = "shell32.dll,13"
+$Shortcut.Description = "Meeting AI - Анализ совещаний"
 $Shortcut.Save()
 
 Write-Host ""
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  ✅ Установка завершена!" -ForegroundColor Green
-Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "============================================" -ForegroundColor Cyan
+Write-Host "  УСТАНОВКА ЗАВЕРШЕНА!" -ForegroundColor Green
+Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Запуск:" -ForegroundColor Yellow
-Write-Host "  • Дважды кликните на 'Meeting AI.lnk'" -ForegroundColor White
-Write-Host "  • Или запустите run.ps1" -ForegroundColor White
+Write-Host "  - Дважды кликните на 'Meeting AI.lnk'" -ForegroundColor White
+Write-Host "  - Или на 'Запустить.bat'" -ForegroundColor White
+Write-Host ""
+Write-Host "Удалить установку:" -ForegroundColor Yellow
+Write-Host "  - Удалите папку venv" -ForegroundColor White
+Write-Host "  - ollama rm qwen2.5:7b" -ForegroundColor White
 Write-Host ""
 pause
