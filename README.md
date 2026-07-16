@@ -1,85 +1,52 @@
-# 🎙️ Meeting AI
+# Meeting AI
 
-**Автоматическое извлечение задач из записей совещаний**
+Automatic task extraction from meeting recordings using local AI.
 
-Приложение слушает запись совещания (или читает текст) и само находит все задачи, ответственных и сроки. Результат сохраняется в удобных форматах для Excel, Notion и других инструментов.
+## Quick Start
 
----
+### 1. Install (one time)
 
-## ⚡ Быстрый старт (2 шага)
+1. Right-click `install.bat` → **Run as administrator**
+2. Press any key when prompted
+3. Wait 5-15 minutes (downloads 4.7 GB AI model)
+4. When you see `INSTALLATION COMPLETE!`, close the window
 
-### 1️ Установка (делается один раз)
+### 2. Run
 
-**Дважды кликните на файл `setup.bat`**
+Double-click `run.bat`
 
-- Появится окно с запросом прав — нажмите **"Да"**
-- Дождитесь окончания установки (5-15 минут)
-- Программа сама установит всё необходимое
+## Requirements
 
-### 2️⃣ Запуск
+- Windows 10/11
+- 8 GB RAM minimum
+- 15 GB free disk space
+- Internet (first time only)
 
-**Дважды кликните на файл `Запустить.bat`**
+## How it works
 
-- Откроется окно приложения
-- Выберите аудиофайл или вставьте текст
-- Нажмите **"Начать обработку"**
+1. Select an audio file (mp3, wav, m4a, etc.) or paste meeting transcript
+2. Click "Start Processing"
+3. Get tasks with assignees, deadlines and priorities
+4. Export to CSV (Excel), JSON, or Markdown (Notion)
 
----
+## Privacy
 
-## 📋 Что нужно для работы
+All processing happens locally on your computer. Nothing is sent to the internet after installation.
 
-| Требование | Минимум |
-|------------|---------|
-| Операционная система | Windows 10/11 |
-| Оперативная память | 8 ГБ |
-| Свободное место на диске | 15 ГБ |
-| Интернет | Только для первой установки |
+## Troubleshooting
 
----
+**"Python not found"**
+- Install Python from python.org
+- Check "Add Python to PATH" during installation
+- Restart and run install.bat again
 
-## 🎯 Как пользоваться
+**"Not installed" when running run.bat**
+- Run install.bat as Administrator first
 
-1. **Выберите аудиофайл** с записью совещания (mp3, wav, m4a и другие форматы)
-   
-   *Или вставьте текст расшифровки в поле*
+**Slow performance**
+- Close other applications during processing
+- For weak PCs: edit install.bat, change `qwen2.5:7b` to `qwen2.5:3b`
 
-2. **Нажмите "Начать обработку"**
+## License
 
-3. **Дождитесь результата** (1-5 минут в зависимости от длины записи)
-
-4. **Откройте результаты** — папка создастся автоматически с файлами:
-   - `tasks.csv` — таблица для Excel
-   - `tasks.md` — для Notion/Confluence
-   - `transcript.txt` — полная расшифровка
-   - `summary.txt` — краткая сводка
-
----
-
-## 🔧 Если что-то не работает
-
-**Ошибка "Виртуальное окружение не найдено"**
-- Запустите `setup.bat` ещё раз
-
-**Приложение работает медленно**
-- Закройте другие программы во время обработки
-- Для слабых компьютеров: откройте `setup.ps1`, найдите строку `qwen2.5:7b` и замените на `qwen2.5:3b`
-
-**Мало задач найдено**
-- Попробуйте более качественную запись
-- Или вставьте текст расшифровки вручную
-
----
-
-## 🔒 Приватность
-
-Все данные обрабатываются **только на вашем компьютере**. Ничего не отправляется в интернет после установки.
-
----
-
-## 📄 Лицензия
-
-MIT License — используйте свободно.
-
----
-
-**GitHub:** https://github.com/eeeeddddX/meeting-ai
+MIT
